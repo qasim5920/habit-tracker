@@ -1,0 +1,29 @@
+# CLAUDE.md — working notes for AI assistants
+
+Desktop habit tracker: Electron 33, plain JS renderer (no framework, no bundler, no modules), Windows NSIS installer.
+Read `docs/ARCHITECTURE.md` first; `docs/SCORING.md` and `docs/DATA.md` for the rules and the data format.
+
+## How the owner wants to work
+- **Ask before making changes**, then explain what and why as you go. Don't work as a black box.
+- Keep the visual style: black background, white text, minimalist, **one accent colour with shades** (CSS variables
+  `--acc`, `--mn`, `--hi`, `--md`, `--lo`). Don't restyle unless asked; "add on top" is the norm.
+- This repo is only about the habit tracker.
+
+## Commands
+- `npm start` run · `npm test` run the tests (must stay green) · `npm run dist` build the installer into `dist/`.
+- The installer is built on Linux with wine; a "channel" error after the build is harmless. It has **not** been run on
+  real Windows by the previous sessions, only built and verified structurally and in Electron under xvfb.
+
+## Conventions and gotchas
+- Renderer scripts are **classic scripts sharing one global scope**; load order is in `src/renderer/index.html`.
+  Code at the top level of a file may only use things from files loaded *before* it; functions may call anything at runtime.
+- Data is the single object `state`; every change goes through a function in `actions.js` that calls `save()` then `render()`.
+- Points, streaks, levels and heatmap are **derived from `state.log` every time** (nothing is cached on disk).
+- Tracking start is **locked** to `created`; never add UI to edit it. Marking days goes through `setDay`, which refuses
+  days where `isActiveOn(h, k)` is false (before creation, or while archived).
+- Only one Main habit at a time (`setMain`). Main history is kept as date ranges in `habit.mains` so past Main days keep 50 pts.
+- Scaling is done in the **main process** (`zoom.js`, `webContents.setZoomFactor`); charts are drawn at the real container
+  width (`chartW`). Don't add fixed pixel widths to the right column.
+- Sound is synthesized with Web Audio (no audio files). Ramps must never target a value <= 0.
+- Tests fake `window.api` and `AudioContext`; add a test for every behaviour change in `tests/run.js`.
+- Version lives in `package.json`; add an entry to `docs/CHANGELOG.md` when you bump it.

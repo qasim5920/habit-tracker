@@ -1,0 +1,46 @@
+{
+  "name": "habit-tracker",
+  "productName": "Habit Tracker",
+  "version": "1.5.0",
+  "description": "Simple dark-mode habit tracker",
+  "main": "src/main/main.js",
+  "scripts": { "start": "electron .", "test": "node tests/run.js", "dist": "electron-builder --win nsis --x64" },
+  "author": "Habit Tracker",
+  "build": {
+    "appId": "com.local.habittracker",
+    "productName": "Habit Tracker",
+    "files": [
+      "src/**/*",
+      "build/icon-256.png"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Habit Tracker",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "uninstallDisplayName": "Habit Tracker",
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "HabitTracker-Setup-${version}.exe"
+    }
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
+    "jsdom": "^24.1.3"
+  }
+}
