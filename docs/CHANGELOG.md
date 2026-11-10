@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.0
+- **Everything fits on one screen.** The page no longer scrolls. The right side is a grid that holds the Overview, Completion,
+  Comparison and Heatmap panels at the same time, and it scales with the window (the existing auto-zoom still applies).
+- **The card list scrolls on its own**, with a thin scrollbar and soft fades at the top and bottom. A newly added habit is
+  scrolled into view. Header, progress bar and the add row stay put.
+- **Panels swap places.** Drag a panel by its grip onto another to swap them (or use the arrow keys on a focused grip).
+  Slots: panels 1 and 2 share the top row, 3 and 4 each take a full-width row. A row whose panels are all collapsed shrinks to
+  its title bar and gives the space to the others. Reset layout still restores the default.
+- Charts are now drawn at their panel's real width **and height**; the heatmap sizes its cells to the panel (never below 9px,
+  then it scrolls sideways) and "Tracking since" moved up next to the year.
+- Panels adapt to their slot: the overview becomes a single row when it has a full-width slot.
+
 ## 1.7.1
 - The streak glow no longer shines from behind the card. Instead a thin accent strip runs along the card's edge and gets
   brighter as the streak grows (starts at 3 days, full strength at 30), with a faint inner tint and a very small lift

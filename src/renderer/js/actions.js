@@ -1,12 +1,14 @@
 'use strict';
 /* User actions that change data: add/remove/archive habits, priority and Main, ticking days, reordering. */
 /* ---------- actions ---------- */
+/* the card list scrolls on its own: bring a card into view (a new habit lands at the bottom of a long list) */
+function revealCard(id) { const c = document.querySelector(`#list .card[data-id="${id}"]`); if (c && c.scrollIntoView) c.scrollIntoView({ block: 'nearest' }); }
 function addHabit() {
   const i = $('newHabit'), n = i.value.trim(); if (!n) return;
   const nh = { id: 'h' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: n, created: dk(today()), priority: addPri === 'main' ? 'high' : addPri };
   state.habits.push(nh);
   let was = null; if (addPri === 'main') was = setMain(nh);
-  i.value = ''; Snd.play('add'); save(); render();
+  i.value = ''; Snd.play('add'); save(); render(); revealCard(nh.id);
   if (was) toast(`“${nh.name}” is now Main. “${was.name}” steps down to ${PLAB[was.priority]}.`);
 }
 function removeHabit(id) {

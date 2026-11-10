@@ -44,4 +44,5 @@ const baseOn = (h, k) => BASE[inMain(h, k) ? 'main' : h.priority];
 const isArchived = h => !!(h.pauses && h.pauses.length && h.pauses[h.pauses.length - 1].to == null);
 // A day is tracked only from the day the habit was created, and not while it is archived.
 const isActiveOn = (h, k) => k >= starts[h.id] && !(h.pauses || []).some(r => k >= r.from && (r.to == null || k < r.to));
-const chartW = e => Math.max(300, Math.round(e && e.clientWidth) || 640);   // charts are drawn at their real pixel width
+const chartW = e => Math.max(240, Math.round(e && e.clientWidth) || 640);   // charts are drawn at their real pixel size
+const chartH = (e, def) => e && e.clientHeight >= 70 ? Math.round(e.clientHeight) : def;

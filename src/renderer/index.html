@@ -65,6 +65,7 @@
       </div>
       <div id="widgets">
       <section class="w" data-w="stats" aria-label="Overview"><div class="w-b">
+        <div class="ov">
         <div class="stats">
           <div><b id="s1"></b><span>Current streak</span></div>
           <div><b id="s2"></b><span>Best streak</span></div>
@@ -75,6 +76,7 @@
           <div><b id="sc2"></b><span>This month</span></div>
           <div><b id="sc3"></b><span>This year</span></div>
           <div><b id="sc4"></b><span id="sc4l">Level</span></div>
+        </div>
         </div>
         <div class="lvl">
           <div class="prog-top"><span id="lvlXp"></span><span id="lvlNext"></span></div>
@@ -105,10 +107,10 @@
       <section class="w" data-w="heat" aria-label="Heatmap"><div class="w-b">
         <div class="hm-head">
           <div class="yr"><button id="py" aria-label="Previous year">‹</button><span id="yv"></span><button id="ny" aria-label="Next year">›</button></div>
+          <div class="since" id="since" hidden>Tracking since <b id="sinceTxt"></b></div>
           <div class="hint" id="hint"></div>
         </div>
         <div class="hmwrap" id="hmwrap"><svg id="hm" viewBox="0 0 742 114"></svg></div>
-        <div class="since" id="since" hidden>Tracking since <b id="sinceTxt"></b></div>
       </div></section>
       </div>
     </div>

@@ -27,6 +27,10 @@ Read `docs/ARCHITECTURE.md` first; `docs/SCORING.md` and `docs/DATA.md` for the 
 - Sound is synthesized with Web Audio (no audio files). Ramps must never target a value <= 0.
 - Tests fake `window.api` and `AudioContext`; add a test for every behaviour change in `tests/run.js`.
 - Chart drawing lives in `charts.js` (`plotSeries`, `plotCompare`); a new chart type needs an icon `ICON.c_<type>` in `helpers.js`.
+- **One screen, no page scroll.** `.wrap` is exactly `100vh`; only `#list` (cards) and a panel body may scroll. The right side is a
+  2-column grid (`#widgets`): slots 1+2 share the top row, 3 and 4 are full width, row heights come from `rowSizes` in `layout.js`.
+  Charts and the heatmap are drawn from their container's real width *and height* (`chartW`, `chartH`), so never give them fixed
+  heights; each panel must work in a half-width and a full-width slot (container queries at the end of `styles.css`).
 - Right-column panels are `<section class="w" data-w="…">` inside `#widgets`; ids live in `layout.js` (`WIDGETS`). A new panel needs
   an entry there and a section in `index.html`. `layout.js` loads before `state.js` because `clean()` calls `cleanLayout`.
 - Card glow is CSS only: `.card::after` draws a thin edge strip, driven by `--glow` (0..1) set from `glowOf` in `stats.js`; the

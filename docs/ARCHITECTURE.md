@@ -14,7 +14,7 @@
 |---|---|
 | `theme.js` | Accent colour → shade variables (`--acc/--mn/--hi/--md/--lo`), swatches and colour popover |
 | `charts.js` | Drawing for the four chart types (line, column, area, column + line) and the type switchers, shared by both graphs |
-| `layout.js` | Movable right-column panels: default order, `cleanLayout` validation, drag/drop, keyboard moves, collapse, reset (saved in `settings.layout`) |
+| `layout.js` | The one-screen panel grid: default order, `cleanLayout` validation, swap by drag or arrow keys, collapse, row sizes, reset, redraw on resize (saved in `settings.layout`) |
 | `compare.js` | Month-vs-last-month / year-vs-last-year comparison graph |
 | `score.js` | Points, streaks, Perfect Day bonus, levels (`scoreDays`, `scoreSummary`, `levelInfo`) |
 | `state.js` | The `state` object, validation/migration (`clean`), `load`/`save` |
