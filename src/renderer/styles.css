@@ -98,7 +98,7 @@ aside,main{min-width:0}
 .toast button:hover{background:#1b1e25}
 
 /* right panel */
-.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;gap:12px;flex-wrap:wrap}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px;flex-wrap:wrap}
 select{background:none;border:0;color:var(--text);font:inherit;font-size:16px;cursor:pointer;outline:none;padding:4px 0;max-width:240px}
 select option{background:var(--panel)}
 .tabs button,.yr button{background:none;border:0;color:var(--mut);font:inherit;font-size:12px;letter-spacing:.06em;cursor:pointer;padding:4px 9px;border-radius:6px}
@@ -114,10 +114,10 @@ svg{display:block;width:100%;height:auto}
 svg text{font:10px "Segoe UI",system-ui,sans-serif;fill:var(--mut)}
 .tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);padding:5px 10px;border-radius:8px;font-size:12px;white-space:nowrap;transform:translate(-50%,-125%);display:none}
 .tip b{margin-left:10px;font-weight:500;color:var(--acc)}
-.hm-head{display:flex;justify-content:space-between;align-items:center;margin:44px 0 10px}
+.hm-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px}
 .yr{display:flex;align-items:center;gap:4px}.yr span{font-size:14px;min-width:44px;text-align:center}
 .hint{font-size:12px;color:var(--mut)}
-.since{display:flex;align-items:center;gap:12px;margin-top:20px;font-size:12px;color:var(--mut)}
+.since{display:flex;align-items:center;gap:12px;margin-top:16px;font-size:12px;color:var(--mut)}
 .since b{font-weight:400;color:var(--text)}
 .since input{background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;padding:4px 8px;color-scheme:dark}
 .empty{color:var(--mut);padding-top:80px;text-align:center}
@@ -133,12 +133,12 @@ svg text{font:10px "Segoe UI",system-ui,sans-serif;fill:var(--mut)}
 .custom{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--mut)}
 .custom input{width:44px;height:26px;border:0;padding:0;background:none;cursor:pointer}
 /* comparison graph */
-.cmp{margin-top:30px}
+.cmp{margin-top:0}
 .cmp-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
 .cmp-head select{font-size:13px;color:var(--mut)}
 .cmp-head select:hover{color:var(--text)}
 .cmp-l{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.chart-top{display:flex;justify-content:flex-end;margin:16px 0 2px}
+.chart-top{display:flex;justify-content:flex-end;margin:0 0 2px}
 .seg{display:inline-flex;gap:2px}
 .seg button{width:28px;height:24px;border:0;border-radius:6px;background:none;color:var(--mut);display:grid;place-items:center;padding:0;cursor:pointer}
 .seg button:hover{color:var(--text)}
@@ -159,8 +159,32 @@ svg text{font:10px "Segoe UI",system-ui,sans-serif;fill:var(--mut)}
 /* scoring row (same look as the stats above it) + chart containers */
 .stats.score{margin-bottom:12px}
 @media(max-width:1100px){.stats.score{gap:12px 28px}}
-.lvl{margin:0 0 30px}
+.lvl{margin:0}
 .lvl .prog-top{margin-bottom:7px}
 .hmwrap{overflow-x:auto;overflow-y:hidden}
 .hmwrap svg{max-width:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* movable panels */
+#widgets{display:flex;flex-direction:column;gap:14px}
+.w{position:relative;border:1px solid var(--line);border-radius:14px;padding:4px 20px 20px;background:rgba(255,255,255,.012);transition:border-color .15s,opacity .15s}
+.w:hover{border-color:#23262e}
+.w-h{display:flex;align-items:center;gap:6px;height:38px;margin:0 -10px 4px}
+.w-grip{width:22px;height:26px;border:0;border-radius:6px;background:none;color:var(--mut);cursor:grab;display:grid;place-items:center;padding:0;opacity:.45;transition:opacity .15s,color .15s}
+.w-grip:active{cursor:grabbing}
+.w:hover .w-grip,.w-grip:focus-visible{opacity:1}.w-grip:hover{color:var(--text)}
+.w-t{display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--mut);cursor:pointer;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:4px 6px;border-radius:6px}
+.w-t:hover{color:var(--text)}
+.w-chev{display:grid;place-items:center;transition:transform .2s}.w-chev svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.w.collapsed .w-chev{transform:rotate(-90deg)}
+.w.collapsed .w-b{display:none}
+.w.collapsed{padding-bottom:4px}.w.collapsed .w-h{margin-bottom:0}
+.w.dragging{opacity:.4}
+.w.over-top{box-shadow:0 -2px 0 0 var(--acc)}.w.over-bot{box-shadow:0 2px 0 0 var(--acc)}
+
+/* ambient glow behind a habit card: --glow (0..1) is set from the streak. The blurred layer sits behind every card. */
+.card{--glow:0}
+.card::after{content:"";position:absolute;inset:3px 8px;border-radius:inherit;z-index:-1;pointer-events:none;background:var(--acc);
+  opacity:calc(var(--glow)*.42);filter:blur(calc(9px + var(--glow)*20px));transition:opacity .6s ease,filter .6s ease}
+.card.dragging::after,.card.archived::after{display:none}
+@media(prefers-reduced-motion:reduce){.card::after,.w,.w-chev{transition:none}}

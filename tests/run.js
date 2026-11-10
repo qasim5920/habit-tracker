@@ -538,6 +538,79 @@ const keysOf = (...ns) => { const o = {}; ns.forEach(n => { o[dk(dAgo(n))] = tru
   ok(good.q('#segMain button.on').dataset.t === 'combo' && good.q('#segCmp button.on').dataset.t === 'area', 'T20 saved types are restored');
 }
 
+/* T21: movable panels (order, collapse, drag and drop, keyboard, reset, persistence, validation) */
+{
+  const hs = [{ id: 'a', name: 'A', created: '2024-01-01', priority: 'med' }];
+  const t = boot({ habits: hs, log: {} });
+  const order = () => t.qa('#widgets > .w').map(w => w.dataset.w).join();
+  ok(order() === 'stats,graph,compare,heat', 'T21 default order');
+  ok(t.qa('#widgets > .w .w-grip').length === 4 && t.qa('#widgets > .w .w-t').length === 4, 'T21 every panel has a grip and a title');
+  ok(t.q('#rl').hidden, 'T21 reset button hidden while layout is default');
+  // drag heat above stats with real DOM drag events
+  const ev = (el, type, y) => { const e = new t.w.Event(type, { bubbles: true, cancelable: true }); e.clientY = y; e.dataTransfer = { setData() {}, effectAllowed: '', dropEffect: '' }; el.dispatchEvent(e); };
+  const heat = t.q('.w[data-w="heat"]'), stats = t.q('.w[data-w="stats"]');
+  stats.getBoundingClientRect = () => ({ top: 0, height: 100, bottom: 100, left: 0, right: 100, width: 100 });
+  t.ev(heat.querySelector('.w-grip'), 'mousedown');
+  ok(heat.draggable === true, 'T21 grip makes the panel draggable');
+  ev(heat, 'dragstart', 0); ev(stats, 'dragover', 10);
+  ok(stats.classList.contains('over-top') && heat.classList.contains('dragging'), 'T21 drag shows drop marker above target');
+  ev(stats, 'drop', 10); ev(heat, 'dragend', 0);
+  ok(order() === 'heat,stats,graph,compare', 'T21 dropped above: ' + order());
+  ok(JSON.stringify(t.saved().settings.layout.order) === JSON.stringify(['heat', 'stats', 'graph', 'compare']), 'T21 order saved');
+  ok(!t.q('#rl').hidden && !heat.draggable && !t.q('.w.over-top'), 'T21 reset shown, drag state cleaned up');
+  // drop below the last panel
+  const cmp = t.q('.w[data-w="compare"]'); cmp.getBoundingClientRect = () => ({ top: 0, height: 100, bottom: 100, left: 0, right: 100, width: 100 });
+  stats.draggable = true; ev(stats, 'dragstart', 0); ev(cmp, 'dragover', 90); ev(cmp, 'drop', 90); ev(stats, 'dragend', 0);
+  ok(order() === 'heat,graph,compare,stats', 'T21 dropped below last: ' + order());
+  // dropping on itself or with nothing being dragged changes nothing
+  ev(cmp, 'drop', 10); ok(order() === 'heat,graph,compare,stats', 'T21 stray drop ignored');
+  // keyboard: Alt-free arrows on the focused grip
+  const grip = id => t.q(`.w[data-w="${id}"] .w-grip`);
+  t.key(grip('graph'), 'ArrowUp'); ok(order() === 'graph,heat,compare,stats', 'T21 ArrowUp moves up');
+  t.key(grip('graph'), 'ArrowUp'); ok(order() === 'graph,heat,compare,stats', 'T21 cannot move above the first');
+  t.key(grip('stats'), 'ArrowDown'); ok(order() === 'graph,heat,compare,stats', 'T21 cannot move below the last');
+  t.key(grip('graph'), 'ArrowDown'); ok(order() === 'heat,graph,compare,stats', 'T21 ArrowDown moves down');
+  // collapse
+  t.click(t.q('.w[data-w="graph"] .w-t'));
+  ok(t.q('.w[data-w="graph"]').classList.contains('collapsed') && t.saved().settings.layout.collapsed[0] === 'graph', 'T21 collapse saved');
+  ok(t.q('.w[data-w="graph"] .w-t').getAttribute('aria-expanded') === 'false', 'T21 aria-expanded reflects collapse');
+  t.click(t.q('.w[data-w="graph"] .w-t')); ok(!t.q('.w[data-w="graph"]').classList.contains('collapsed') && t.saved().settings.layout.collapsed.length === 0, 'T21 expand');
+  // reset (with undo)
+  t.click(t.q('#rl')); ok(order() === 'stats,graph,compare,heat' && t.q('#rl').hidden, 'T21 reset restores default');
+  t.click(t.q('#toastBtn')); ok(order() === 'heat,graph,compare,stats', 'T21 undo brings the layout back');
+  // persistence across a restart
+  const again = boot({ habits: hs, log: {}, settings: { layout: { order: ['compare', 'heat'], collapsed: ['heat', 'nope'] } } });
+  ok(again.qa('#widgets > .w').map(w => w.dataset.w).join() === 'compare,heat,stats,graph', 'T21 partial saved order is completed');
+  ok(again.q('.w[data-w="heat"]').classList.contains('collapsed') && !again.q('.w[data-w="stats"]').classList.contains('collapsed'), 'T21 collapsed set restored, unknown ids dropped');
+  // hostile data never breaks the layout
+  for (const bad of [null, 5, 'x', [], { order: 'x', collapsed: 7 }, { order: ['heat', 'heat', 'zzz', 3, null], collapsed: [null] }]) {
+    const b = boot({ habits: hs, log: {}, settings: { layout: bad } });
+    const o = b.qa('#widgets > .w').map(w => w.dataset.w);
+    ok(o.length === 4 && new Set(o).size === 4, 'T21 bad layout recovers: ' + JSON.stringify(bad));
+  }
+}
+
+/* T22: ambient glow grows with the streak */
+{
+  const day = n => { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - n); return dk(d); };
+  const mkLog = (n, skipToday) => { const l = {}; for (let i = skipToday ? 1 : 0; i < n + (skipToday ? 1 : 0); i++) l[day(i)] = true; return l; };
+  const hs = ['d1', 'd3', 'd7', 'd14', 'd30', 'd60', 'pend'].map((n, i) => ({ id: n, name: n, created: day(100), priority: 'med' }));
+  const log = { d1: mkLog(1), d3: mkLog(3), d7: mkLog(7), d14: mkLog(14), d30: mkLog(30), d60: mkLog(60), pend: mkLog(30, true) };
+  const t = boot({ habits: hs, log });
+  const g = id => parseFloat(t.q(`.card[data-id="${id}"]`).style.getPropertyValue('--glow') || '0');
+  ok(g('d1') === 0, 'T22 no glow under a 3-day streak');
+  ok(g('d3') > 0 && g('d3') < g('d7') && g('d7') < g('d14') && g('d14') < g('d30'), 'T22 glow strictly grows with the streak');
+  ok(g('d30') === 1 && g('d60') === 1, 'T22 glow tops out at 1 from 30 days');
+  ok(g('pend') > 0 && g('pend') < g('d30'), 'T22 glow is dimmer while today is unticked');
+  ok(glowOfCheck(t.w.glowOf), 'T22 glowOf stays within 0..1');
+  function glowOfCheck(f) { for (let s = 0; s < 400; s++) for (const dn of [true, false]) { const v = f(s, dn); if (!(v >= 0 && v <= 1)) return false; } return true; }
+  // ticking today brightens the card
+  const before = g('pend'); t.click(t.q('.card[data-id="pend"] .dot')); ok(g('pend') > before, 'T22 ticking today brightens the glow');
+  // archived habits do not glow
+  t.click(t.q('.card[data-id="d60"] .ib[aria-label^="Archive"]')); t.click(t.q('#tArch'));
+  ok(!t.q('.card[data-id="d60"]').style.getPropertyValue('--glow'), 'T22 archived habit has no glow');
+}
+
 console.log(`passed ${pass}, failed ${fail}`);
 console.log('page errors:', allErrors.length ? allErrors : 'none');
 wins.forEach(w => { try { w.close(); } catch (e) {} });

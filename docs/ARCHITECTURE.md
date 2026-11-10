@@ -14,13 +14,14 @@
 |---|---|
 | `theme.js` | Accent colour → shade variables (`--acc/--mn/--hi/--md/--lo`), swatches and colour popover |
 | `charts.js` | Drawing for the four chart types (line, column, area, column + line) and the type switchers, shared by both graphs |
+| `layout.js` | Movable right-column panels: default order, `cleanLayout` validation, drag/drop, keyboard moves, collapse, reset (saved in `settings.layout`) |
 | `compare.js` | Month-vs-last-month / year-vs-last-year comparison graph |
 | `score.js` | Points, streaks, Perfect Day bonus, levels (`scoreDays`, `scoreSummary`, `levelInfo`) |
 | `state.js` | The `state` object, validation/migration (`clean`), `load`/`save` |
 | `helpers.js` | `$`, `el`, date helpers (`dk`, `pk`, `addD`, `today`), SVG icons |
 | `sound.js` | Synthesized chimes (done, all-done, level-up, undo, add) |
 | `toast.js` | Toast with Undo |
-| `stats.js` | `calcStarts`, `isActiveOn`, `dayCounts`, streaks, graph buckets |
+| `stats.js` | `calcStarts`, `isActiveOn`, `dayCounts`, streaks, `glowOf` (streak → card glow 0..1), graph buckets |
 | `actions.js` | Everything that changes data: add/remove/archive, priority & Main, `setDay`, reorder, rename |
 | `render-cards.js` | Left column: cards, progress bar, toolbar, add row |
 | `render-panel.js` | Right column: habit picker, stats, line graph, heatmap |

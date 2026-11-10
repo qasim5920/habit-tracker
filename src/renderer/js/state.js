@@ -6,7 +6,7 @@ const PRI = ['high', 'med', 'low'];
 const PLAB = { main: 'Main', high: 'High', med: 'Med', low: 'Low' };
 const RANK = { main: -1, high: 0, med: 1, low: 2 };
 const CYCLE = ['low', 'med', 'high', 'main'];             // clicking the priority label steps up; after Main it wraps back to Low
-let state = { habits: [], log: {}, settings: { sound: true, hideDone: false, accent: DEFAULT_ACCENT, cmp: 'month', showArchived: false, chart: 'line', cmpChart: 'line' } };
+let state = { habits: [], log: {}, settings: { sound: true, hideDone: false, accent: DEFAULT_ACCENT, cmp: 'month', showArchived: false, chart: 'line', cmpChart: 'line', layout: cleanLayout(null) } };
 
 function clean(o) {
   if (!o || !Array.isArray(o.habits) || typeof o.log !== 'object' || !o.log) return null;
@@ -28,7 +28,7 @@ function clean(o) {
   o.settings = { sound: s.sound !== false, hideDone: s.hideDone === true,
     accent: typeof s.accent === 'string' && HEXRE.test(s.accent) ? s.accent.toLowerCase() : DEFAULT_ACCENT,
     cmp: s.cmp === 'year' ? 'year' : 'month', showArchived: s.showArchived === true,
-    chart: CHART_TYPES.includes(s.chart) ? s.chart : 'line', cmpChart: CHART_TYPES.includes(s.cmpChart) ? s.cmpChart : 'line' };
+    chart: CHART_TYPES.includes(s.chart) ? s.chart : 'line', cmpChart: CHART_TYPES.includes(s.cmpChart) ? s.cmpChart : 'line', layout: cleanLayout(s.layout) };
   return o;
 }
 try {
