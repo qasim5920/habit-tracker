@@ -137,6 +137,18 @@ svg text{font:10px "Segoe UI",system-ui,sans-serif;fill:var(--mut)}
 .cmp-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
 .cmp-head select{font-size:13px;color:var(--mut)}
 .cmp-head select:hover{color:var(--text)}
+.cmp-l{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chart-top{display:flex;justify-content:flex-end;margin:16px 0 2px}
+.seg{display:inline-flex;gap:2px}
+.seg button{width:28px;height:24px;border:0;border-radius:6px;background:none;color:var(--mut);display:grid;place-items:center;padding:0;cursor:pointer}
+.seg button:hover{color:var(--text)}
+.seg button.on{color:var(--acc);background:var(--panel)}
+.seg svg{width:15px;height:15px}
+.menu{width:236px;padding:8px}
+.menu-h{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);padding:6px 10px 8px}
+.menu button{display:flex;justify-content:space-between;align-items:baseline;gap:12px;width:100%;background:none;border:0;border-radius:8px;color:var(--text);font:inherit;font-size:13px;padding:8px 10px;cursor:pointer;text-align:left}
+.menu button:hover{background:#1a1d24}
+.menu button span{font-size:11px;color:var(--mut)}
 .legend{display:flex;align-items:center;gap:16px;font-size:12px;color:var(--mut)}
 .lg{display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums}
 .lg i{width:14px;height:0;border-top:2px solid var(--acc);border-radius:2px}

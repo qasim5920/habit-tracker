@@ -10,17 +10,15 @@ function renderSel() {
   s.value = which;
 }
 function renderGraph(list) {
-  const W = chartW($('chart')), H = 250, L = 34, R = 10, T = 10, B = 26, iw = W - L - R, ih = H - T - B, n = list.length;
+  const type = state.settings.chart, W = chartW($('chart')), H = 250, L = 34, R = 10, T = 10, B = 26, iw = W - L - R, ih = H - T - B, n = list.length;
   gW = W; gH = H; $('g').setAttribute('viewBox', `0 0 ${W} ${H}`);
-  const X = i => L + (n > 1 ? i * iw / (n - 1) : iw / 2), Y = v => T + ih * (1 - v / 100);
+  const X = xScale(type, L, iw, n), Y = v => T + ih * (1 - v / 100);
   let h = '';
   [0, 50, 100].forEach(v => { h += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#1b1d23"/><text x="${L - 8}" y="${Y(v) + 3}" text-anchor="end">${v}%</text>`; });
   const marks = Math.min(Math.max(3, Math.floor(W / 120)), n);
   for (let j = 0; j < marks; j++) { const i = marks > 1 ? Math.round(j * (n - 1) / (marks - 1)) : 0; h += `<text x="${X(i)}" y="${H - 8}" text-anchor="${j === 0 ? 'start' : j === marks - 1 ? 'end' : 'middle'}">${list[i].lab}</text>`; }
-  let d = '', pen = false, last = -1;
-  list.forEach((p, i) => { if (p.v == null) { pen = false; return; } d += `${pen ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(p.v).toFixed(1)} `; pen = true; last = i; });
-  if (d) h += `<path d="${d}" fill="none" style="stroke:var(--acc)" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round"/>`;
-  if (last >= 0) h += `<circle cx="${X(last)}" cy="${Y(list[last].v)}" r="3" style="fill:var(--acc)"/>`;
+  const vals = list.map(p => p.v);
+  if (vals.some(v => v != null)) h += plotSeries(vals, { type, X, Y, y0: Y(0), iw, n, id: 'agMain' });
   else h += `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">No data in this range</text>`;
   h += `<line id="cx" y1="${T}" y2="${T + ih}" stroke="#2a2d35" display="none"/><circle id="cd" r="4" fill="#0b0c0f" style="stroke:var(--acc)" stroke-width="1.75" display="none"/>`;
   $('g').innerHTML = h;

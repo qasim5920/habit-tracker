@@ -42,21 +42,13 @@ function renderCompare() {
   const W = chartW($('cchart')), H = 150, L = 34, R = 10, T = 8, B = 20, iw = W - L - R, ih = H - T - B, n = c.n;
   cW = W; cH = H; $('gc').setAttribute('viewBox', `0 0 ${W} ${H}`);
   const ticks = W < 460 ? c.ticks.filter((_, j) => j % 2 === 0) : c.ticks;   // fewer labels when narrow
-  const X = i => L + (n > 1 ? i * iw / (n - 1) : iw / 2), Y = v => T + ih * (1 - v / 100);
+  const type = state.settings.cmpChart, X = xScale(type, L, iw, n), Y = v => T + ih * (1 - v / 100);
   let h = '';
   [0, 50, 100].forEach(v => { h += `<line x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#1b1d23"/><text x="${L - 8}" y="${Y(v) + 3}" text-anchor="end">${v}%</text>`; });
   ticks.forEach(i => { h += `<text x="${X(i)}" y="${H - 5}" text-anchor="${i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle'}">${c.xl(i)}</text>`; });
-  const path = arr => { let d = '', pen = false; arr.forEach((v, i) => { if (v == null) { pen = false; return; } d += `${pen ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(v).toFixed(1)} `; pen = true; }); return d; };
-  const dB = path(c.prev), dA = path(c.cur);
-  if (dB) h += `<path d="${dB}" fill="none" style="stroke:rgba(var(--acc-rgb),.5)" stroke-width="1.5" stroke-dasharray="4 4" stroke-linecap="round" stroke-linejoin="round"/>`;
-  if (dA) h += `<path d="${dA}" fill="none" style="stroke:var(--acc)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
-  if (c.dots) {
-    c.prev.forEach((v, i) => { if (v != null) h += `<circle cx="${X(i)}" cy="${Y(v)}" r="2.4" style="fill:rgba(var(--acc-rgb),.5)"/>`; });
-    c.cur.forEach((v, i) => { if (v != null) h += `<circle cx="${X(i)}" cy="${Y(v)}" r="3" style="fill:var(--acc)"/>`; });
-  } else {
-    for (let i = c.cur.length - 1; i >= 0; i--) if (c.cur[i] != null) { h += `<circle cx="${X(i)}" cy="${Y(c.cur[i])}" r="3" style="fill:var(--acc)"/>`; break; }
-  }
-  if (!dA && !dB) h += `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">No data yet</text>`;
+  const hasData = c.cur.some(v => v != null) || c.prev.some(v => v != null);
+  if (hasData) h += plotCompare(c.cur, c.prev, { type, X, Y, y0: Y(0), iw, n, id: 'agCmp' }, c.dots);
+  else h += `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">No data yet</text>`;
   h += `<line id="cxc" y1="${T}" y2="${T + ih}" stroke="#2a2d35" display="none"/>`;
   $('gc').innerHTML = h;
   cpts = Array.from({ length: n }, (_, i) => ({ x: X(i), a: c.cur[i], b: c.prev[i], y: c.cur[i] != null ? Y(c.cur[i]) : c.prev[i] != null ? Y(c.prev[i]) : null }));

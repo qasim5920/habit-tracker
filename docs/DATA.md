@@ -15,7 +15,8 @@ Location: `%APPDATA%\Habit Tracker\habits.json` (plain JSON). Daily copies in `b
     }
   ],
   "log": { "h1abc": { "2026-01-02": true } },   // completed days per habit id
-  "settings": { "sound": true, "hideDone": false, "accent": "#9db7ff", "cmp": "month", "showArchived": false }
+  "settings": { "sound": true, "hideDone": false, "accent": "#9db7ff", "cmp": "month", "showArchived": false,
+                "chart": "line", "cmpChart": "line" }   // chart types: "line" | "column" | "area" | "combo"
 }
 ```
 - Range ends are exclusive (`to` is the first day *not* in the range).

@@ -100,12 +100,31 @@ function unarchiveHabit(id, quiet) {
   save(); render();
   if (!quiet) toast(`Restored “${h.name}”`);
 }
-function sortByPriority() {
+/* Sorting is a one-time reorder (saved, with Undo); you can still drag cards afterwards. Ties keep their current order. */
+function donePct(h) {                                     // completion % over the days this habit was tracked
+  let a = 0, d = 0; const tk = dk(today());
+  for (let day = pk(starts[h.id]), k = dk(day); k <= tk; day = addD(day, 1), k = dk(day)) if (isActiveOn(h, k)) { a++; if (isDone(h.id, k)) d++; }
+  return a ? d / a * 100 : 0;
+}
+const SORTS = {
+  priority: { name: 'priority', key: h => RANK[curPri(h)] },
+  most: { name: 'most done', key: h => -donePct(h) },
+  least: { name: 'least done', key: h => donePct(h) },
+  oldest: { name: 'oldest habit', key: h => starts[h.id], str: true },
+  newest: { name: 'newest habit', key: h => starts[h.id], str: true, desc: true }
+};
+function sortHabits(mode) {
+  const S = SORTS[mode]; if (!S) return;
   const before = state.habits.map(h => h.id);
-  const sorted = state.habits.map((h, i) => ({ h, i })).sort((a, b) => RANK[curPri(a.h)] - RANK[curPri(b.h)] || a.i - b.i).map(x => x.h);
-  if (sorted.every((h, i) => h.id === before[i])) { toast('Already sorted by priority'); return; }
+  const rows = state.habits.map((h, i) => ({ h, i, k: S.key(h) }));
+  rows.sort((x, y) => {
+    const c = S.str ? (x.k < y.k ? -1 : x.k > y.k ? 1 : 0) : x.k - y.k;
+    return (S.desc ? -c : c) || x.i - y.i;
+  });
+  const sorted = rows.map(r => r.h);
+  if (sorted.every((h, i) => h.id === before[i])) { toast('Already sorted by ' + S.name); return; }
   state.habits = sorted; save(); render();
-  toast('Sorted by priority', () => {
+  toast('Sorted by ' + S.name, () => {
     const rest = state.habits.filter(h => !before.includes(h.id));
     state.habits = before.map(byId).filter(Boolean).concat(rest); save(); render();
   });

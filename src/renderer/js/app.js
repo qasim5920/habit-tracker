@@ -14,7 +14,12 @@ $('newHabit').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit
 $('addPri').onclick = e => { const b = e.target.closest('button'); if (b) { addPri = b.dataset.p; renderTools(); $('newHabit').focus(); } };
 $('tSound').onclick = () => { state.settings.sound = !state.settings.sound; save(); renderTools(); Snd.play('done'); };
 $('tHide').onclick = () => { state.settings.hideDone = !state.settings.hideDone; save(); render(); };
-$('tSort').onclick = sortByPriority;
+const sortPop = $('sortPop');
+const closeSort = () => { sortPop.hidden = true; $('tSort').setAttribute('aria-expanded', 'false'); };
+$('tSort').onclick = () => { const open = sortPop.hidden; closeSort(); if (open) { sortPop.hidden = false; $('tSort').setAttribute('aria-expanded', 'true'); } };
+sortPop.onclick = e => { const b = e.target.closest('button[data-s]'); if (b) { closeSort(); sortHabits(b.dataset.s); } };
+document.addEventListener('click', e => { if (!sortPop.hidden && !sortPop.contains(e.target) && !e.target.closest('#tSort')) closeSort(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !sortPop.hidden) closeSort(); });
 $('tArch').onclick = () => { state.settings.showArchived = !state.settings.showArchived; save(); render(); };
 $('which').onchange = e => { which = e.target.value; render(); };
 $('tabs').onclick = e => { if (e.target.tagName === 'BUTTON') { range = e.target.textContent; render(); } };
@@ -67,5 +72,5 @@ if (window.api) {
 } else $('foot').hidden = true;
 
 setInterval(() => { const k = dk(today()); if (k !== curDay) { curDay = k; render(); } }, 60000);
-initTheme(); initCompare();
+initTheme(); initCompare(); initChartSwitchers();
 render();

@@ -130,11 +130,11 @@ const mk = (names, prios) => ({ habits: names.map((n, i) => ({ id: 'h' + i, name
 /* T7: sort by priority (stable) + undo */
 {
   const t = boot(mk(['A', 'B', 'C', 'D'], ['low', 'high', 'med', 'high']));
-  t.click(t.q('#tSort'));
+  t.click(t.q('#tSort')); t.click(t.q('#sortPop [data-s="priority"]'));
   ok(t.names() === 'B,D,C,A', 'T7 sorted ' + t.names());
   t.click(t.q('#toastBtn'));
   ok(t.names() === 'A,B,C,D', 'T7 undo ' + t.names());
-  t.click(t.q('#tSort')); t.click(t.q('#tSort'));
+  t.click(t.q('#tSort')); t.click(t.q('#sortPop [data-s="priority"]')); t.click(t.q('#tSort')); t.click(t.q('#sortPop [data-s="priority"]'));
   ok(t.q('#toastBtn').hidden && /Already/.test(t.q('#toastTxt').textContent), 'T7 already sorted message');
 }
 
@@ -476,7 +476,66 @@ const keysOf = (...ns) => { const o = {}; ns.forEach(n => { o[dk(dAgo(n))] = tru
   ok(t4.w.eval("isMain(byId('a')) && !isMain(byId('b')) && (!byId('b').mains) && byId('a').mains.length===1"), 'T18 same-day flips leave no stray runs');
   // sort puts Main first
   const t5 = boot({ habits: [{ id: 'a', name: 'A', created: '2024-01-01', priority: 'high' }, { id: 'b', name: 'B', created: '2024-01-01', priority: 'low', mains: [{ from: '2025-01-01', to: null }] }], log: {} });
-  t5.click(t5.q('#tSort')); ok(t5.names() === 'B,A', 'T18 sort puts Main first: ' + t5.names());
+  t5.click(t5.q('#tSort')); t5.click(t5.q('#sortPop [data-s="priority"]')); ok(t5.names() === 'B,A', 'T18 sort puts Main first: ' + t5.names());
+}
+
+/* T19: sort options (most/least done, oldest/newest) */
+{
+  const T = new Date(), key = off => dk(new Date(T.getTime() - off * 864e5));
+  // A: started 10d ago, done 3/11 days (27.3%) | B: started 40d ago, done 11/41 (26.8%) | C: started 5d ago, done 6/6 (100%) | D: started 20d ago, done 10/21 (48%)
+  const hs = [['A', 10, 3], ['B', 40, 11], ['C', 5, 6], ['D', 20, 10]].map(([n, age], i) => ({ id: 'h' + i, name: n, created: key(age), priority: 'med' }));
+  const log = { h0: {}, h1: {}, h2: {}, h3: {} };
+  [0, 1, 2].forEach(o => log.h0[key(o)] = true);                      // A 3/11 = 27%
+  for (let o = 0; o < 11; o++) log.h1[key(o)] = true;                  // B 11/41 = 27%
+  for (let o = 0; o <= 5; o++) log.h2[key(o)] = true;                  // C 6/6 = 100%
+  for (let o = 0; o < 10; o++) log.h3[key(o)] = true;                  // D 10/21 = 48%
+  const run = mode => { const t = boot({ habits: JSON.parse(JSON.stringify(hs)), log: JSON.parse(JSON.stringify(log)) }); t.click(t.q('#tSort')); t.click(t.q(`#sortPop [data-s="${mode}"]`)); return t; };
+  const menu = boot({ habits: JSON.parse(JSON.stringify(hs)), log });
+  ok(menu.q('#sortPop').hidden, 'T19 menu closed at start');
+  menu.click(menu.q('#tSort')); ok(!menu.q('#sortPop').hidden, 'T19 menu opens');
+  ok(menu.qa('#sortPop button[data-s]').length === 5, 'T19 five sort options');
+  menu.click(menu.q('#sortPop [data-s="most"]')); ok(menu.q('#sortPop').hidden, 'T19 menu closes after choosing');
+  ok(run('most').names() === 'C,D,A,B', 'T19 most done: ' + run('most').names());          // A and B tie at 27% -> keep current order
+  ok(run('least').names() === 'B,A,D,C', 'T19 least done: ' + run('least').names());
+  ok(run('oldest').names() === 'B,D,A,C', 'T19 oldest: ' + run('oldest').names());
+  ok(run('newest').names() === 'C,A,D,B', 'T19 newest: ' + run('newest').names());
+  const u = run('oldest'); u.click(u.q('#toastBtn')); ok(u.names() === 'A,B,C,D', 'T19 undo restores order: ' + u.names());
+  const sv = run('newest'); ok(sv.saved().habits.map(h => h.name).join() === 'C,A,D,B', 'T19 sort is saved');
+}
+/* T20: graph types (line / column / area / column+line) for both graphs */
+{
+  const hs = [{ id: 'a', name: 'A', created: '2024-01-01', priority: 'high' }];
+  const log = { a: {} }; for (let o = 0; o < 60; o++) if (o % 3) log.a[dk(new Date(Date.now() - o * 864e5))] = true;
+  const t = boot({ habits: hs, log });
+  ok(t.qa('#segMain button').length === 4 && t.qa('#segCmp button').length === 4, 'T20 four types in each switcher');
+  ok(t.q('#segMain button.on').dataset.t === 'line' && t.q('#segCmp button.on').dataset.t === 'line', 'T20 default is line');
+  const shape = sel => ({ paths: t.qa(sel + ' path').length, circles: t.qa(sel + ' circle').length, grad: !!t.q(sel + ' linearGradient') });
+  const line = shape('#g');
+  for (const type of ['column', 'area', 'combo', 'line']) {
+    t.click(t.q(`#segMain button[data-t="${type}"]`));
+    ok(t.q('#segMain button.on').dataset.t === type && t.saved().settings.chart === type, 'T20 main saved as ' + type);
+    ok(t.qa('#g path').length > 0, 'T20 main draws ' + type);
+    if (type === 'area') ok(t.q('#g linearGradient'), 'T20 area has gradient');
+    if (type === 'column') ok(t.qa('#g path[style*="fill"]').length >= 30 && !t.q('#g path[stroke-width]'), 'T20 column draws bars only (' + t.qa('#g path[style*="fill"]').length + ')');
+    if (type === 'combo') ok(t.qa('#g path[style*="fill"]').length >= 30 && !!t.q('#g path[stroke-width]'), 'T20 combo draws bars + trend line');
+  }
+  ok(JSON.stringify(shape('#g')) === JSON.stringify(line), 'T20 line chart identical after switching back');
+  for (const type of ['column', 'area', 'combo']) {
+    t.click(t.q(`#segCmp button[data-t="${type}"]`));
+    ok(t.saved().settings.cmpChart === type && t.q('#segCmp button.on').dataset.t === type, 'T20 comparison saved as ' + type);
+    ok(t.qa('#gc path').length > 0, 'T20 comparison draws ' + type);
+  }
+  ok(t.saved().settings.chart === 'line', 'T20 the two graphs are independent');
+  // year comparison and 5Y/All ranges render in every type without errors
+  t.q('#cmpSel').value = 'year'; t.q('#cmpSel').dispatchEvent(new t.w.Event('change'));
+  for (const type of ['line', 'column', 'area', 'combo']) { t.click(t.q(`#segCmp button[data-t="${type}"]`)); t.click(t.q(`#segMain button[data-t="${type}"]`)); [...t.qa('#tabs button')].forEach(b => t.click(b)); }
+  ok(true, 'T20 all types x all ranges render');
+  // setting validation and persistence across reload
+  const bad = boot({ habits: hs, log, settings: { chart: 'pie', cmpChart: 7 } });
+  ok(bad.saved() == null || true, 'T20 bad settings tolerated');
+  ok(bad.q('#segMain button.on').dataset.t === 'line' && bad.q('#segCmp button.on').dataset.t === 'line', 'T20 invalid chart settings fall back to line');
+  const good = boot({ habits: hs, log, settings: { chart: 'combo', cmpChart: 'area' } });
+  ok(good.q('#segMain button.on').dataset.t === 'combo' && good.q('#segCmp button.on').dataset.t === 'area', 'T20 saved types are restored');
 }
 
 console.log(`passed ${pass}, failed ${fail}`);

@@ -20,7 +20,15 @@
         <button class="tool" id="tSound" title="Sound (Ctrl+M)" aria-label="Toggle sound"></button>
         <button class="tool" id="tHide" title="Hide completed" aria-label="Hide completed habits"></button>
         <button class="tool" id="tArch" title="Show archived habits" aria-label="Show archived habits"></button>
-        <button class="tool" id="tSort" title="Sort by priority" aria-label="Sort by priority"></button>
+        <button class="tool" id="tSort" title="Sort habits" aria-label="Sort habits" aria-haspopup="true" aria-expanded="false"></button>
+      </div>
+      <div class="pop menu" id="sortPop" hidden role="menu" aria-label="Sort habits">
+        <div class="menu-h">Sort habits by</div>
+        <button data-s="priority" role="menuitem">Priority<span>Main to Low</span></button>
+        <button data-s="most" role="menuitem">Most done<span>highest completion</span></button>
+        <button data-s="least" role="menuitem">Least done<span>lowest completion</span></button>
+        <button data-s="oldest" role="menuitem">Oldest habit<span>started first</span></button>
+        <button data-s="newest" role="menuitem">Newest habit<span>started last</span></button>
       </div>
       <div class="pop" id="colorPop" hidden role="dialog" aria-label="Accent color">
         <div class="sw" id="swatches"></div>
@@ -70,13 +78,15 @@
         <div class="prog-top"><span id="lvlXp"></span><span id="lvlNext"></span></div>
         <div class="prog-bar"><i id="lvlFill"></i></div>
       </div>
+      <div class="chart-top"><div class="seg" id="segMain" role="group" aria-label="Graph type"></div></div>
       <div class="chart" id="chart"><svg id="g" viewBox="0 0 640 240"></svg><div class="tip" id="tip"></div></div>
       <div class="cmp">
         <div class="cmp-head">
-          <select id="cmpSel" aria-label="Comparison graph">
+          <div class="cmp-l"><select id="cmpSel" aria-label="Comparison graph">
             <option value="month">This month vs last month</option>
             <option value="year">This year vs last year</option>
           </select>
+          <div class="seg" id="segCmp" role="group" aria-label="Comparison graph type"></div></div>
           <div class="legend">
             <span class="lg"><i></i><span id="lgAt"></span></span>
             <span class="lg prev"><i></i><span id="lgBt"></span></span>
@@ -97,6 +107,7 @@
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toastTxt"></span><button id="toastBtn">Undo</button></div>
 <script src="js/theme.js"></script>
+<script src="js/charts.js"></script>
 <script src="js/compare.js"></script>
 <script src="js/score.js"></script>
 <script src="js/state.js"></script>

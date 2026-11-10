@@ -26,4 +26,5 @@ Read `docs/ARCHITECTURE.md` first; `docs/SCORING.md` and `docs/DATA.md` for the 
   width (`chartW`). Don't add fixed pixel widths to the right column.
 - Sound is synthesized with Web Audio (no audio files). Ramps must never target a value <= 0.
 - Tests fake `window.api` and `AudioContext`; add a test for every behaviour change in `tests/run.js`.
+- Chart drawing lives in `charts.js` (`plotSeries`, `plotCompare`); a new chart type needs an icon `ICON.c_<type>` in `helpers.js`.
 - Version lives in `package.json`; add an entry to `docs/CHANGELOG.md` when you bump it.
