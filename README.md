@@ -5,6 +5,8 @@
 **A minimalist dark habit tracker for Windows.**
 Cards, streaks, levels and four kinds of charts, all stored on your own PC.
 
+[**Download the latest release**](../../releases/latest)
+
 ![Version](https://img.shields.io/badge/version-1.6.0-9db7ff?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Windows-1c1f26?style=flat-square)
 ![Built with](https://img.shields.io/badge/built%20with-Electron-1c1f26?style=flat-square)
@@ -22,7 +24,7 @@ Cards, streaks, levels and four kinds of charts, all stored on your own PC.
 
 ## Install
 
-1. Download the newest installer from the [`releases/`](releases) folder and run it.
+1. Download `HabitTracker-Setup-<version>.exe` from the [latest release](../../releases/latest) and run it.
 2. The installer is unsigned, so Windows SmartScreen will warn about an unknown publisher. Click **More info → Run anyway**.
 3. Your data survives updates and uninstalling.
 
@@ -107,7 +109,7 @@ src/renderer/   The UI (plain HTML/CSS/JS, no framework, no bundler)
   js/           Scripts loaded in order by index.html
 build/          App icon (tools/make_icon.py regenerates it)
 tests/run.js    Behaviour tests
-releases/       Built Windows installers
+.github/        Release workflow (builds the installer and publishes a GitHub Release)
 docs/           ARCHITECTURE · SCORING · DATA · CHANGELOG
 CLAUDE.md       Notes for AI assistants working in this repo
 ```
