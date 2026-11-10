@@ -97,6 +97,8 @@ npm run dist   # build dist/HabitTracker-Setup-<version>.exe
 
 Building the Windows installer on Linux needs `wine` (for icon embedding). electron-builder prints a harmless `Cannot read properties of null (reading 'channel')` after it has written the installer.
 
+To publish a Windows installer, first update the `version` in `package.json` for the new release and include that change in the PR. **You must update this version for every new release**; the workflow does not increment it automatically. When a PR is merged into the repository's default branch, **Build and release** runs the tests, builds the installer, and attaches it to a GitHub Release tagged `v<version>` from `package.json`. You can also run the workflow manually from the repository's GitHub Actions tab.
+
 ## Project layout
 
 ```
