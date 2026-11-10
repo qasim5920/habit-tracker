@@ -7,7 +7,7 @@ Cards, streaks, levels and four kinds of charts, all stored on your own PC.
 
 [**Download the latest release**](../../releases/latest)
 
-![Version](https://img.shields.io/badge/version-1.7.0-9db7ff?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.7.1-9db7ff?style=flat-square)
 ![Platform](https://img.shields.io/badge/platform-Windows-1c1f26?style=flat-square)
 ![Built with](https://img.shields.io/badge/built%20with-Electron-1c1f26?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-1c1f26?style=flat-square)
@@ -38,7 +38,7 @@ Cards, streaks, levels and four kinds of charts, all stored on your own PC.
 
 ### Layout
 - The right side is a set of **movable panels**: drag a panel by its grip (or focus the grip and press `↑`/`↓`) to put it anywhere, and click its title to collapse it. Your layout is remembered, and **Reset layout** puts everything back.
-- **Ambient glow**: once a habit has a 3-day streak, a soft glow appears behind its card and gets brighter as the streak grows (full strength at 30 days). It stays dim until you tick the habit today.
+- **Streak glow**: once a habit has a 3-day streak, a thin accent strip appears along its card's edge and gets brighter as the streak grows (full strength at 30 days), with a tiny lift. It stays dimmer until you tick the habit today.
 
 ### Charts
 Two graphs, and each one can be switched between four chart types:

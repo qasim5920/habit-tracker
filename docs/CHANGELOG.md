@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.1
+- The streak glow no longer shines from behind the card. Instead a thin accent strip runs along the card's edge and gets
+  brighter as the streak grows (starts at 3 days, full strength at 30), with a faint inner tint and a very small lift
+  (about 1%) at full strength. Still dimmer until you tick the habit today; archived habits never glow.
+
 ## 1.7.0
 - **Movable panels.** The right column is now a stack of windows (Overview, Completion, Comparison, Heatmap). Drag a panel by
   its grip to put it anywhere, or focus the grip and press ↑/↓. Click a panel's title to collapse or expand it.

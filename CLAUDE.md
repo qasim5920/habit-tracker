@@ -29,5 +29,6 @@ Read `docs/ARCHITECTURE.md` first; `docs/SCORING.md` and `docs/DATA.md` for the 
 - Chart drawing lives in `charts.js` (`plotSeries`, `plotCompare`); a new chart type needs an icon `ICON.c_<type>` in `helpers.js`.
 - Right-column panels are `<section class="w" data-w="…">` inside `#widgets`; ids live in `layout.js` (`WIDGETS`). A new panel needs
   an entry there and a section in `index.html`. `layout.js` loads before `state.js` because `clean()` calls `cleanLayout`.
-- Card glow is CSS only (`.card::after`, driven by `--glow` set from `glowOf` in `stats.js`); keep it subtle.
+- Card glow is CSS only: `.card::after` draws a thin edge strip, driven by `--glow` (0..1) set from `glowOf` in `stats.js`; the
+  card also lifts ~1%. Nothing is drawn behind cards. Keep it subtle.
 - Version lives in `package.json`; add an entry to `docs/CHANGELOG.md` when you bump it.

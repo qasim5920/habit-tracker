@@ -182,9 +182,13 @@ svg text{font:10px "Segoe UI",system-ui,sans-serif;fill:var(--mut)}
 .w.dragging{opacity:.4}
 .w.over-top{box-shadow:0 -2px 0 0 var(--acc)}.w.over-bot{box-shadow:0 2px 0 0 var(--acc)}
 
-/* ambient glow behind a habit card: --glow (0..1) is set from the streak. The blurred layer sits behind every card. */
-.card{--glow:0}
-.card::after{content:"";position:absolute;inset:3px 8px;border-radius:inherit;z-index:-1;pointer-events:none;background:var(--acc);
-  opacity:calc(var(--glow)*.42);filter:blur(calc(9px + var(--glow)*20px));transition:opacity .6s ease,filter .6s ease}
+/* streak glow: a thin accent strip along the card's edge that brightens with the streak (--glow 0..1, set from stats.js glowOf),
+   a faint inner tint, and a very small lift. Nothing is drawn behind the card. */
+.card{--glow:0;transform:scale(calc(1 + var(--glow)*.012));transition:transform .5s ease,background .5s ease}
+.card::after{content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;
+  border:1px solid rgba(var(--acc-rgb),calc(var(--glow)*.85));
+  box-shadow:0 0 calc(var(--glow)*9px) rgba(var(--acc-rgb),calc(var(--glow)*.3)),inset 0 0 calc(var(--glow)*16px) rgba(var(--acc-rgb),calc(var(--glow)*.1));
+  opacity:calc(var(--glow)*20);transition:border-color .5s ease,box-shadow .5s ease,opacity .5s ease}
 .card.dragging::after,.card.archived::after{display:none}
-@media(prefers-reduced-motion:reduce){.card::after,.w,.w-chev{transition:none}}
+.card.dragging{transform:none}
+@media(prefers-reduced-motion:reduce){.card,.card::after,.w,.w-chev{transition:none}}
