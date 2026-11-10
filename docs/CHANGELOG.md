@@ -10,6 +10,7 @@
   its title bar and gives the space to the others. Reset layout still restores the default.
 - Charts are now drawn at their panel's real width **and height**; the heatmap sizes its cells to the panel (never below 9px,
   then it scrolls sideways) and "Tracking since" moved up next to the year.
+- The heatmap is centred in its panel when the panel is taller than it needs.
 - Panels adapt to their slot: the overview becomes a single row when it has a full-width slot.
 
 ## 1.7.1
