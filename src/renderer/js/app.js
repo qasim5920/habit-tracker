@@ -72,5 +72,5 @@ if (window.api) {
 } else $('foot').hidden = true;
 
 setInterval(() => { const k = dk(today()); if (k !== curDay) { curDay = k; render(); } }, 60000);
-initTheme(); initCompare(); initChartSwitchers();
+initTheme(); initCompare(); initChartSwitchers(); initLayout();
 render();

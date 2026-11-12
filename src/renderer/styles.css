@@ -2,19 +2,22 @@
   --acc-rgb:157,183,255;--mn:#0037ce;--hi:#3561db;--md:#9db7ff;--lo:#dae4ff}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 "Segoe UI",system-ui,sans-serif;overflow-x:hidden}
-::-webkit-scrollbar{width:10px}::-webkit-scrollbar-thumb{background:#262932;border-radius:6px;border:2px solid var(--bg)}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 "Segoe UI",system-ui,sans-serif;overflow-x:hidden;overflow-y:auto}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#262932;border-radius:6px;border:2px solid var(--bg)}::-webkit-scrollbar-thumb:hover{background:#343843}
 button{font:inherit}
 button:focus-visible,input:focus-visible,select:focus-visible,.card:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .drag{position:fixed;top:0;left:0;right:0;height:36px;-webkit-app-region:drag;background:var(--bg);z-index:5}
-.wrap{max-width:1500px;margin:0 auto;padding:64px 40px 48px;display:grid;grid-template-columns:minmax(300px,360px) minmax(0,1fr);gap:56px;align-items:start}
-aside,main{min-width:0}
-@media(max-width:980px){.wrap{grid-template-columns:minmax(0,1fr);gap:40px;padding:60px 24px 32px;max-width:760px}}
+/* one-screen layout: the page itself never scrolls; the card list scrolls inside the left column, the panels share the right */
+.wrap{height:100vh;min-height:600px;max-width:1700px;margin:0 auto;padding:48px 32px 18px;display:grid;grid-template-columns:minmax(300px,340px) minmax(0,1fr);gap:28px;align-items:stretch}
+aside,main{min-width:0;min-height:0;display:flex;flex-direction:column}
+@media(max-width:980px){.wrap{height:auto;grid-template-columns:minmax(0,1fr);gap:28px;padding:56px 20px 24px;max-width:760px}
+  #list{overflow:visible;flex:none}#widgets{display:flex;flex-direction:column}.w{min-height:300px}}
 
 /* header */
 .head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .lab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
-.date{white-space:nowrap;font-size:28px;font-weight:300;margin:2px 0 18px}
+.date{white-space:nowrap;font-size:28px;font-weight:300;margin:2px 0 12px}
 .tools{flex-shrink:0;display:flex;gap:2px;margin-top:-2px}
 .tool{width:30px;height:30px;border:0;border-radius:8px;background:none;color:var(--mut);cursor:pointer;display:grid;place-items:center;padding:0}
 .tool:hover{color:var(--text);background:var(--panel)}
@@ -38,7 +41,10 @@ aside,main{min-width:0}
 .pp .p-main{--c:var(--mn)}.pp .p-high{--c:var(--hi)}.pp .p-med{--c:var(--md)}.pp .p-low{--c:var(--lo)}
 
 /* cards */
-#list{display:flex;flex-direction:column;gap:8px}
+/* the card list is the scrolling area. Padding + negative margin leave room inside it for each card's edge glow and lift. */
+#list{display:flex;flex-direction:column;gap:8px;flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;margin:2px -12px 0;padding:8px 12px;scroll-behavior:smooth;overscroll-behavior:contain;
+  -webkit-mask-image:linear-gradient(#0000,#000 12px,#000 calc(100% - 16px),#0000);mask-image:linear-gradient(#0000,#000 12px,#000 calc(100% - 16px),#0000)}
+#list::-webkit-scrollbar{width:8px}#list::-webkit-scrollbar-thumb{border:2px solid var(--bg);background:#23262e}
 .card{position:relative;display:grid;grid-template-columns:14px 22px minmax(0,1fr) auto;align-items:center;gap:10px;
   background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 10px 11px 6px;cursor:pointer;transition:border-color .15s,background .15s,opacity .15s}
 .card::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:4px;border-radius:0 3px 3px 0;background:var(--pc,var(--md))}
@@ -87,8 +93,8 @@ aside,main{min-width:0}
 .ib:disabled{opacity:.25;cursor:default}
 .ib.del:hover:not(:disabled){color:var(--text)}
 .ib svg{width:12px;height:12px}
-.none{color:var(--mut);text-align:center;padding:28px 0 6px}
-.keys{margin-top:22px;font-size:11px;color:#4a4e58;line-height:1.7}
+.none{color:var(--mut);text-align:center;padding:20px 0 4px}
+.keys{flex:none;margin-top:8px;font-size:11px;color:#4a4e58;line-height:1.6}
 
 /* toast */
 .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--panel);border:1px solid #262932;border-radius:10px;padding:8px 8px 8px 16px;display:flex;align-items:center;gap:14px;font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.45);z-index:20;max-width:80vw}
@@ -98,30 +104,31 @@ aside,main{min-width:0}
 .toast button:hover{background:#1b1e25}
 
 /* right panel */
-.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;gap:12px;flex-wrap:wrap}
+.bar{flex:none;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:12px;flex-wrap:wrap}
 select{background:none;border:0;color:var(--text);font:inherit;font-size:16px;cursor:pointer;outline:none;padding:4px 0;max-width:240px}
 select option{background:var(--panel)}
 .tabs button,.yr button{background:none;border:0;color:var(--mut);font:inherit;font-size:12px;letter-spacing:.06em;cursor:pointer;padding:4px 9px;border-radius:6px}
 .tabs button:hover,.yr button:hover:not(:disabled){color:var(--text)}
 .tabs button.on{color:var(--text);background:var(--panel)}
 .yr button:disabled{opacity:.3;cursor:default}
-.stats{display:flex;gap:48px;margin-bottom:26px;flex-wrap:wrap}
-.stats b{display:block;font-size:30px;font-weight:300;line-height:1.2;font-variant-numeric:tabular-nums}
-.stats b small{font-size:13px;color:var(--mut);margin-left:4px}
-.stats span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
-.chart{position:relative}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 14px;margin-bottom:8px}
+.stats b{display:block;font-size:22px;font-weight:300;line-height:1.15;font-variant-numeric:tabular-nums}
+.stats b small{font-size:12px;color:var(--mut);margin-left:3px}
+.stats span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.chart{position:relative;flex:1 1 0;min-height:70px}
 svg{display:block;width:100%;height:auto}
+.chart>svg{position:absolute;inset:0;height:100%}     /* charts are drawn at the container's real width and height */
 svg text{font:10px "Segoe UI",system-ui,sans-serif;fill:var(--mut)}
 .tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);padding:5px 10px;border-radius:8px;font-size:12px;white-space:nowrap;transform:translate(-50%,-125%);display:none}
 .tip b{margin-left:10px;font-weight:500;color:var(--acc)}
-.hm-head{display:flex;justify-content:space-between;align-items:center;margin:44px 0 10px}
+.hm-head{flex:none;display:flex;justify-content:space-between;align-items:center;gap:2px 14px;flex-wrap:wrap;margin:0 0 6px}
 .yr{display:flex;align-items:center;gap:4px}.yr span{font-size:14px;min-width:44px;text-align:center}
 .hint{font-size:12px;color:var(--mut)}
-.since{display:flex;align-items:center;gap:12px;margin-top:20px;font-size:12px;color:var(--mut)}
+.since{display:flex;align-items:center;gap:8px;margin:0 auto 0 4px;font-size:12px;color:var(--mut)}
 .since b{font-weight:400;color:var(--text)}
 .since input{background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;padding:4px 8px;color-scheme:dark}
 .empty{color:var(--mut);padding-top:80px;text-align:center}
-.foot{margin-top:48px;font-size:12px;color:var(--mut);display:flex;gap:22px}
+.foot{flex:none;margin-top:10px;font-size:11px;color:var(--mut);display:flex;gap:20px;flex-wrap:wrap}
 .foot button{background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:0}.foot button:hover{color:var(--text)}
 /* accent picker */
 .head{position:relative}
@@ -133,12 +140,12 @@ svg text{font:10px "Segoe UI",system-ui,sans-serif;fill:var(--mut)}
 .custom{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--mut)}
 .custom input{width:44px;height:26px;border:0;padding:0;background:none;cursor:pointer}
 /* comparison graph */
-.cmp{margin-top:30px}
-.cmp-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.cmp{flex:1;min-height:0;display:flex;flex-direction:column}
+.cmp-head{display:flex;justify-content:space-between;align-items:center;gap:4px 12px;flex-wrap:wrap;margin-bottom:4px}
 .cmp-head select{font-size:13px;color:var(--mut)}
 .cmp-head select:hover{color:var(--text)}
 .cmp-l{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.chart-top{display:flex;justify-content:flex-end;margin:16px 0 2px}
+.chart-top{flex:none;display:flex;justify-content:flex-end;margin:0 0 2px}
 .seg{display:inline-flex;gap:2px}
 .seg button{width:28px;height:24px;border:0;border-radius:6px;background:none;color:var(--mut);display:grid;place-items:center;padding:0;cursor:pointer}
 .seg button:hover{color:var(--text)}
@@ -157,10 +164,51 @@ svg text{font:10px "Segoe UI",system-ui,sans-serif;fill:var(--mut)}
 .legend em.up{color:var(--acc)}
 .tip b.prev{color:var(--mut)}
 /* scoring row (same look as the stats above it) + chart containers */
-.stats.score{margin-bottom:12px}
-@media(max-width:1100px){.stats.score{gap:12px 28px}}
-.lvl{margin:0 0 30px}
+.stats.score{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:8px}
+.lvl{margin:0}
 .lvl .prog-top{margin-bottom:7px}
-.hmwrap{overflow-x:auto;overflow-y:hidden}
-.hmwrap svg{max-width:none}
+.hmwrap{overflow-x:auto;overflow-y:hidden;flex:1 1 0;min-height:70px;display:flex;flex-direction:column;justify-content:center}
+.hmwrap svg{max-width:none;margin:0 auto}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+#panel{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+/* panels: a 2-column grid. Slots are by position: 1 and 2 share the top row, 3 and 4 each take a full-width row.
+   Rows are sized in layout.js (a row whose panels are all collapsed shrinks to its title bar). Every panel adapts to its slot. */
+#widgets{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#widgets>.w:nth-child(3),#widgets>.w:nth-child(4){grid-column:1 / -1}
+.w{position:relative;container-type:inline-size;min-width:0;min-height:0;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;padding:2px 14px 12px;background:rgba(255,255,255,.012);transition:border-color .15s,opacity .15s,box-shadow .15s}
+.w-b{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;overflow-x:hidden;overflow-y:auto}
+.w:hover{border-color:#23262e}
+.w-h{flex:none;display:flex;align-items:center;gap:6px;height:30px;margin:0 -8px 2px}
+.w-grip{width:22px;height:26px;border:0;border-radius:6px;background:none;color:var(--mut);cursor:grab;display:grid;place-items:center;padding:0;opacity:.45;transition:opacity .15s,color .15s}
+.w-grip:active{cursor:grabbing}
+.w:hover .w-grip,.w-grip:focus-visible{opacity:1}.w-grip:hover{color:var(--text)}
+.w-t{display:flex;align-items:center;gap:6px;border:0;background:none;color:var(--mut);cursor:pointer;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:4px 6px;border-radius:6px}
+.w-t:hover{color:var(--text)}
+.w-chev{display:grid;place-items:center;transition:transform .2s}.w-chev svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.w.collapsed .w-chev{transform:rotate(-90deg)}
+.w.collapsed .w-b{display:none}
+.w.collapsed{padding-bottom:2px;align-self:start}.w.collapsed .w-h{margin-bottom:0}
+.w.dragging{opacity:.4}
+.w.drop{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
+
+/* streak glow: a thin accent strip along the card's edge that brightens with the streak (--glow 0..1, set from stats.js glowOf),
+   a faint inner tint, and a very small lift. Nothing is drawn behind the card. */
+.card{--glow:0;transform:scale(calc(1 + var(--glow)*.012));transition:transform .5s ease,background .5s ease}
+.card::after{content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;
+  border:1px solid rgba(var(--acc-rgb),calc(var(--glow)*.85));
+  box-shadow:0 0 calc(var(--glow)*9px) rgba(var(--acc-rgb),calc(var(--glow)*.3)),inset 0 0 calc(var(--glow)*16px) rgba(var(--acc-rgb),calc(var(--glow)*.1));
+  opacity:calc(var(--glow)*20);transition:border-color .5s ease,box-shadow .5s ease,opacity .5s ease}
+.card.dragging::after,.card.archived::after{display:none}
+.card.dragging{transform:none}
+@media(prefers-reduced-motion:reduce){.card,.card::after,.w,.w-chev{transition:none}}
+
+/* panel contents adapt to the width of the slot they are in */
+@container (min-width:560px){
+  .ov{display:grid;grid-template-columns:3fr 4fr;gap:20px;align-items:end}
+  .ov .stats{margin-bottom:10px}.stats.score{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@container (max-width:420px){
+  .cmp-head{flex-direction:column;align-items:flex-start}
+  .legend{gap:12px}
+}

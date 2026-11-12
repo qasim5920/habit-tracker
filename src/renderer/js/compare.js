@@ -39,7 +39,7 @@ function cmpData(mode) {
 function renderCompare() {
   const mode = state.settings.cmp, c = cmpData(mode); cinfo = c;
   $('cmpSel').value = mode;
-  const W = chartW($('cchart')), H = 150, L = 34, R = 10, T = 8, B = 20, iw = W - L - R, ih = H - T - B, n = c.n;
+  const W = chartW($('cchart')), H = chartH($('cchart'), 150), L = 34, R = 10, T = 8, B = 20, iw = W - L - R, ih = H - T - B, n = c.n;
   cW = W; cH = H; $('gc').setAttribute('viewBox', `0 0 ${W} ${H}`);
   const ticks = W < 460 ? c.ticks.filter((_, j) => j % 2 === 0) : c.ticks;   // fewer labels when narrow
   const type = state.settings.cmpChart, X = xScale(type, L, iw, n), Y = v => T + ih * (1 - v / 100);

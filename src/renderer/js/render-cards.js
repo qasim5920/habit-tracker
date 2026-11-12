@@ -20,6 +20,7 @@ function buildCard(h, idx, count) {
   const nm = el('span', 'nm', h.name); nm.title = 'Double-click to rename';
   nm.ondblclick = e => { e.stopPropagation(); startRename(h.id); };
   const s = streakOf([h]);
+  const gl = arch ? 0 : glowOf(s, on); if (gl) c.style.setProperty('--glow', gl.toFixed(2));   // ambient glow grows with the streak
   top.append(nm, el('span', 'st', arch ? 'archived' : s > 1 ? s + 'd' : ''));
 
   const sub = el('div', 'sub'), week = el('div', 'week');

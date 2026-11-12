@@ -1,7 +1,7 @@
 {
   "name": "habit-tracker",
   "productName": "Habit Tracker",
-  "version": "1.6.0",
+  "version": "2.0.0",
   "description": "Simple dark-mode habit tracker",
   "main": "src/main/main.js",
   "scripts": { "start": "electron .", "test": "node tests/run.js", "dist": "electron-builder --win nsis --x64" },
@@ -43,4 +43,4 @@
     "electron-builder": "^25.1.8",
     "jsdom": "^24.1.3"
   }
-}
+}

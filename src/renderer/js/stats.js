@@ -17,6 +17,13 @@ function streakOf(sc) {
   let n = 0; while (complete(dk(d), sc)) { n++; d = addD(d, -1); }
   return n;
 }
+/* Ambient glow behind a card, 0..1. Nothing before a 3-day streak, then it grows on a log scale to full strength at 30 days
+   (3d .15, 7d .46, 14d .72, 30d 1). It is dimmer while today is still unticked, so ticking the habit makes the card brighten. */
+function glowOf(streak, doneToday) {
+  if (streak < 3) return 0;
+  const g = Math.min(1, (Math.log2(streak) - 1) / (Math.log2(30) - 1));
+  return g * (doneToday ? 1 : 0.65);
+}
 function bestOf(sc) {
   if (!sc.length) return 0;
   const first = pk(sc.map(h => starts[h.id]).sort()[0]), t = today(); let best = 0, cur = 0;

@@ -422,7 +422,7 @@ const keysOf = (...ns) => { const o = {}; ns.forEach(n => { o[dk(dAgo(n))] = tru
     setW(1000); t.w.dispatchEvent(new t.w.Event('resize')); await sleep(150);
     ok(t.q('#g').getAttribute('viewBox') === '0 0 1000 250' && t.q('#gc').getAttribute('viewBox') === '0 0 1000 150', 'A wide: ' + t.q('#g').getAttribute('viewBox') + ' / ' + t.q('#gc').getAttribute('viewBox'));
     const vb = t.q('#hm').getAttribute('viewBox').split(' ').map(Number);
-    ok(Math.abs(vb[2] - 1000) < 0.2 && t.q('#hm').style.width === '', 'A heatmap fills width: ' + vb);
+    ok(Math.abs(vb[2] - 1000) < 0.2 && t.q('#hm').style.width === '1000px', 'A heatmap fills width: ' + vb);
     ok(t.q('#hm rect').getAttribute('width') === '15.5', 'A heatmap cells grow: ' + t.q('#hm rect').getAttribute('width'));
     setW(400); t.w.dispatchEvent(new t.w.Event('resize')); await sleep(150);
     ok(t.q('#g').getAttribute('viewBox') === '0 0 400 250', 'A narrow chart: ' + t.q('#g').getAttribute('viewBox'));
@@ -536,6 +536,115 @@ const keysOf = (...ns) => { const o = {}; ns.forEach(n => { o[dk(dAgo(n))] = tru
   ok(bad.q('#segMain button.on').dataset.t === 'line' && bad.q('#segCmp button.on').dataset.t === 'line', 'T20 invalid chart settings fall back to line');
   const good = boot({ habits: hs, log, settings: { chart: 'combo', cmpChart: 'area' } });
   ok(good.q('#segMain button.on').dataset.t === 'combo' && good.q('#segCmp button.on').dataset.t === 'area', 'T20 saved types are restored');
+}
+
+/* T21: movable panels in a one-screen grid (swap by drag, keyboard, collapse, row sizes, reset, persistence, validation) */
+{
+  const hs = [{ id: 'a', name: 'A', created: '2024-01-01', priority: 'med' }];
+  const t = boot({ habits: hs, log: {} });
+  const order = () => t.qa('#widgets > .w').map(w => w.dataset.w).join();
+  const rows = () => t.q('#widgets').style.gridTemplateRows;
+  ok(order() === 'stats,graph,compare,heat', 'T21 default order');
+  ok(t.qa('#widgets > .w .w-grip').length === 4 && t.qa('#widgets > .w .w-t').length === 4, 'T21 every panel has a grip and a title');
+  ok(t.q('#rl').hidden, 'T21 reset button hidden while layout is default');
+  ok(rows().split(') ').length === 3 && !rows().includes('34px'), 'T21 three rows share the height: ' + rows());
+  // drag heat onto stats: the two swap places
+  const ev = (el, type) => { const e = new t.w.Event(type, { bubbles: true, cancelable: true }); e.dataTransfer = { setData() {}, effectAllowed: '', dropEffect: '' }; el.dispatchEvent(e); };
+  const heat = t.q('.w[data-w="heat"]'), stats = t.q('.w[data-w="stats"]'), graph = t.q('.w[data-w="graph"]');
+  t.ev(heat.querySelector('.w-grip'), 'mousedown');
+  ok(heat.draggable === true, 'T21 grip makes the panel draggable');
+  ev(heat, 'dragstart'); ev(stats, 'dragover');
+  ok(stats.classList.contains('drop') && heat.classList.contains('dragging'), 'T21 drag outlines the target panel');
+  ev(stats, 'drop'); ev(heat, 'dragend');
+  ok(order() === 'heat,graph,compare,stats', 'T21 swapped: ' + order());
+  ok(JSON.stringify(t.saved().settings.layout.order) === JSON.stringify(['heat', 'graph', 'compare', 'stats']), 'T21 order saved');
+  ok(!t.q('#rl').hidden && !heat.draggable && !t.q('.w.drop'), 'T21 reset shown, drag state cleaned up');
+  // dropping on itself, or a drop with nothing being dragged, changes nothing
+  ev(graph, 'dragover'); ev(graph, 'drop'); ok(order() === 'heat,graph,compare,stats' && !t.q('.w.drop'), 'T21 stray drop ignored');
+  graph.draggable = true; ev(graph, 'dragstart'); ev(graph, 'dragover'); ev(graph, 'drop'); ev(graph, 'dragend');
+  ok(order() === 'heat,graph,compare,stats', 'T21 dropping on itself does nothing');
+  // keyboard: arrows on the focused grip move one slot
+  const grip = id => t.q(`.w[data-w="${id}"] .w-grip`);
+  t.key(grip('graph'), 'ArrowUp'); ok(order() === 'graph,heat,compare,stats', 'T21 ArrowUp moves one slot back');
+  t.key(grip('graph'), 'ArrowLeft'); ok(order() === 'graph,heat,compare,stats', 'T21 cannot move before the first');
+  t.key(grip('stats'), 'ArrowDown'); ok(order() === 'graph,heat,compare,stats', 'T21 cannot move after the last');
+  t.key(grip('graph'), 'ArrowRight'); ok(order() === 'heat,graph,compare,stats', 'T21 ArrowRight moves one slot forward');
+  // collapse + row sizing
+  t.click(t.q('.w[data-w="graph"] .w-t'));
+  ok(t.q('.w[data-w="graph"]').classList.contains('collapsed') && t.saved().settings.layout.collapsed[0] === 'graph', 'T21 collapse saved');
+  ok(t.q('.w[data-w="graph"] .w-t').getAttribute('aria-expanded') === 'false', 'T21 aria-expanded reflects collapse');
+  ok(!rows().includes('34px'), 'T21 a row with one collapsed panel keeps its size');
+  t.click(t.q('.w[data-w="compare"] .w-t'));                              // slot 3 alone in its row
+  ok(rows().split(' ')[1] === '34px', 'T21 a fully collapsed row shrinks to its title bar: ' + rows());
+  t.click(t.q('.w[data-w="compare"] .w-t')); t.click(t.q('.w[data-w="graph"] .w-t'));
+  ok(!t.q('.w[data-w="graph"]').classList.contains('collapsed') && t.saved().settings.layout.collapsed.length === 0 && !rows().includes('34px'), 'T21 expand restores rows');
+  // reset (with undo)
+  t.click(t.q('#rl')); ok(order() === 'stats,graph,compare,heat' && t.q('#rl').hidden, 'T21 reset restores default');
+  t.click(t.q('#toastBtn')); ok(order() === 'heat,graph,compare,stats', 'T21 undo brings the layout back');
+  // persistence across a restart
+  const again = boot({ habits: hs, log: {}, settings: { layout: { order: ['compare', 'heat'], collapsed: ['heat', 'nope'] } } });
+  ok(again.qa('#widgets > .w').map(w => w.dataset.w).join() === 'compare,heat,stats,graph', 'T21 partial saved order is completed');
+  ok(again.q('.w[data-w="heat"]').classList.contains('collapsed') && !again.q('.w[data-w="stats"]').classList.contains('collapsed'), 'T21 collapsed set restored, unknown ids dropped');
+  // hostile data never breaks the layout
+  for (const bad of [null, 5, 'x', [], { order: 'x', collapsed: 7 }, { order: ['heat', 'heat', 'zzz', 3, null], collapsed: [null] }]) {
+    const b = boot({ habits: hs, log: {}, settings: { layout: bad } });
+    const o = b.qa('#widgets > .w').map(w => w.dataset.w);
+    ok(o.length === 4 && new Set(o).size === 4, 'T21 bad layout recovers: ' + JSON.stringify(bad));
+  }
+}
+
+/* T23: one-screen layout: charts and heatmap take their size from the panel they are in */
+{
+  const hs = [{ id: 'a', name: 'A', created: '2024-01-01', priority: 'med' }];
+  const t = boot({ habits: hs, log: {} });
+  const setSize = (id, w, h) => { const e = t.q('#' + id); Object.defineProperty(e, 'clientWidth', { value: w, configurable: true }); Object.defineProperty(e, 'clientHeight', { value: h, configurable: true }); };
+  setSize('chart', 330, 140); setSize('cchart', 700, 100); setSize('hmwrap', 700, 90);
+  t.w.renderCharts();
+  ok(t.q('#g').getAttribute('viewBox') === '0 0 330 140', 'T23 completion graph drawn at its panel size: ' + t.q('#g').getAttribute('viewBox'));
+  ok(t.q('#gc').getAttribute('viewBox') === '0 0 700 100', 'T23 comparison graph drawn at its panel size: ' + t.q('#gc').getAttribute('viewBox'));
+  const vb = t.q('#hm').getAttribute('viewBox').split(' ').map(Number);
+  ok(Math.abs(vb[3] - 90) < 0.5 && Math.abs(vb[2] - 700) < 0.5, 'T23 heatmap fits the panel height and still fills the width: ' + vb);
+  const cell = t.q('#hm rect'); ok(Math.abs(cell.getAttribute('height') - (74 / 7 - 3)) < 0.1 && +cell.getAttribute('width') > +cell.getAttribute('height'), 'T23 cells are a little wider than tall when the panel is short');
+  setSize('hmwrap', 700, 71); t.w.renderCharts(); ok(t.q('#hm').getAttribute('viewBox').split(' ')[3] <= 16 + 7 * 9 + 0.5, 'T23 cells never get below 9px tall');
+  setSize('hmwrap', 700, 90); t.w.renderCharts();
+  setSize('hmwrap', 700, 400); t.w.renderCharts();
+  ok(Math.abs(t.q('#hm').getAttribute('viewBox').split(' ')[2] - 700) < 0.5, 'T23 heatmap fills the width when there is room');
+  setSize('hmwrap', 300, 90); t.w.renderCharts();
+  ok(parseFloat(t.q('#hm').style.width) >= 54 * 9 - 1, 'T23 heatmap keeps 9px cells in a narrow panel (scrolls sideways)');
+}
+
+/* T24: card list scrolls by itself; a new habit is scrolled into view; CSS keeps the page itself from scrolling */
+{
+  const css = require('fs').readFileSync(require('path').join(__dirname, '..', 'src', 'renderer', 'styles.css'), 'utf8');
+  const rule = sel => (css.match(new RegExp('(?:^|\\n)' + sel.replace(/[.#>*]/g, m => '\\' + m) + '\\{[^}]*\\}')) || [''])[0];
+  ok(/overflow-y:auto/.test(rule('#list')) && /min-height:0/.test(rule('#list')), 'T24 card list has its own scrollbar');
+  ok(/height:100vh/.test(rule('.wrap')), 'T24 the app is exactly one screen tall');
+  const t = boot({ habits: [{ id: 'a', name: 'A', created: '2024-01-01', priority: 'med' }], log: {} });
+  let revealed = null; t.w.Element.prototype.scrollIntoView = function (o) { revealed = this.dataset.id + ':' + (o && o.block); };
+  t.q('#newHabit').value = 'Brand new'; t.w.addHabit();
+  const added = t.saved().habits.find(h => h.name === 'Brand new');
+  ok(revealed === added.id + ':nearest', 'T24 new habit scrolled into view: ' + revealed);
+}
+
+/* T22: ambient glow grows with the streak */
+{
+  const day = n => { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() - n); return dk(d); };
+  const mkLog = (n, skipToday) => { const l = {}; for (let i = skipToday ? 1 : 0; i < n + (skipToday ? 1 : 0); i++) l[day(i)] = true; return l; };
+  const hs = ['d1', 'd3', 'd7', 'd14', 'd30', 'd60', 'pend'].map((n, i) => ({ id: n, name: n, created: day(100), priority: 'med' }));
+  const log = { d1: mkLog(1), d3: mkLog(3), d7: mkLog(7), d14: mkLog(14), d30: mkLog(30), d60: mkLog(60), pend: mkLog(30, true) };
+  const t = boot({ habits: hs, log });
+  const g = id => parseFloat(t.q(`.card[data-id="${id}"]`).style.getPropertyValue('--glow') || '0');
+  ok(g('d1') === 0, 'T22 no glow under a 3-day streak');
+  ok(g('d3') > 0 && g('d3') < g('d7') && g('d7') < g('d14') && g('d14') < g('d30'), 'T22 glow strictly grows with the streak');
+  ok(g('d30') === 1 && g('d60') === 1, 'T22 glow tops out at 1 from 30 days');
+  ok(g('pend') > 0 && g('pend') < g('d30'), 'T22 glow is dimmer while today is unticked');
+  ok(glowOfCheck(t.w.glowOf), 'T22 glowOf stays within 0..1');
+  function glowOfCheck(f) { for (let s = 0; s < 400; s++) for (const dn of [true, false]) { const v = f(s, dn); if (!(v >= 0 && v <= 1)) return false; } return true; }
+  // ticking today brightens the card
+  const before = g('pend'); t.click(t.q('.card[data-id="pend"] .dot')); ok(g('pend') > before, 'T22 ticking today brightens the glow');
+  // archived habits do not glow
+  t.click(t.q('.card[data-id="d60"] .ib[aria-label^="Archive"]')); t.click(t.q('#tArch'));
+  ok(!t.q('.card[data-id="d60"]').style.getPropertyValue('--glow'), 'T22 archived habit has no glow');
 }
 
 console.log(`passed ${pass}, failed ${fail}`);

@@ -63,51 +63,64 @@
         <select id="which" aria-label="Habit"></select>
         <div class="tabs" id="tabs"><button>30D</button><button>90D</button><button>1Y</button><button>5Y</button><button>All</button></div>
       </div>
-      <div class="stats">
-        <div><b id="s1"></b><span>Current streak</span></div>
-        <div><b id="s2"></b><span>Best streak</span></div>
-        <div><b id="s3"></b><span id="s3l">Completion</span></div>
-      </div>
-      <div class="stats score" id="scoreRow" title="Main 50 · High 30 · Medium 20 · Low 10 points per habit. +10% for each streak day (up to x2). Perfect day: +25%.">
-        <div><b id="sc1"></b><span>Today</span></div>
-        <div><b id="sc2"></b><span>This month</span></div>
-        <div><b id="sc3"></b><span>This year</span></div>
-        <div><b id="sc4"></b><span id="sc4l">Level</span></div>
-      </div>
-      <div class="lvl">
-        <div class="prog-top"><span id="lvlXp"></span><span id="lvlNext"></span></div>
-        <div class="prog-bar"><i id="lvlFill"></i></div>
-      </div>
-      <div class="chart-top"><div class="seg" id="segMain" role="group" aria-label="Graph type"></div></div>
-      <div class="chart" id="chart"><svg id="g" viewBox="0 0 640 240"></svg><div class="tip" id="tip"></div></div>
-      <div class="cmp">
-        <div class="cmp-head">
-          <div class="cmp-l"><select id="cmpSel" aria-label="Comparison graph">
-            <option value="month">This month vs last month</option>
-            <option value="year">This year vs last year</option>
-          </select>
-          <div class="seg" id="segCmp" role="group" aria-label="Comparison graph type"></div></div>
-          <div class="legend">
-            <span class="lg"><i></i><span id="lgAt"></span></span>
-            <span class="lg prev"><i></i><span id="lgBt"></span></span>
-            <em id="cmpDelta"></em>
-          </div>
+      <div id="widgets">
+      <section class="w" data-w="stats" aria-label="Overview"><div class="w-b">
+        <div class="ov">
+        <div class="stats">
+          <div><b id="s1"></b><span>Current streak</span></div>
+          <div><b id="s2"></b><span>Best streak</span></div>
+          <div><b id="s3"></b><span id="s3l">Completion</span></div>
         </div>
-        <div class="chart" id="cchart"><svg id="gc" viewBox="0 0 640 150"></svg><div class="tip" id="tipC"></div></div>
+        <div class="stats score" id="scoreRow" title="Main 50 · High 30 · Medium 20 · Low 10 points per habit. +10% for each streak day (up to x2). Perfect day: +25%.">
+          <div><b id="sc1"></b><span>Today</span></div>
+          <div><b id="sc2"></b><span>This month</span></div>
+          <div><b id="sc3"></b><span>This year</span></div>
+          <div><b id="sc4"></b><span id="sc4l">Level</span></div>
+        </div>
+        </div>
+        <div class="lvl">
+          <div class="prog-top"><span id="lvlXp"></span><span id="lvlNext"></span></div>
+          <div class="prog-bar"><i id="lvlFill"></i></div>
+        </div>
+      </div></section>
+      <section class="w" data-w="graph" aria-label="Completion graph"><div class="w-b">
+        <div class="chart-top"><div class="seg" id="segMain" role="group" aria-label="Graph type"></div></div>
+        <div class="chart" id="chart"><svg id="g" viewBox="0 0 640 240"></svg><div class="tip" id="tip"></div></div>
+      </div></section>
+      <section class="w" data-w="compare" aria-label="Comparison graph"><div class="w-b">
+        <div class="cmp">
+          <div class="cmp-head">
+            <div class="cmp-l"><select id="cmpSel" aria-label="Comparison graph">
+              <option value="month">This month vs last month</option>
+              <option value="year">This year vs last year</option>
+            </select>
+            <div class="seg" id="segCmp" role="group" aria-label="Comparison graph type"></div></div>
+            <div class="legend">
+              <span class="lg"><i></i><span id="lgAt"></span></span>
+              <span class="lg prev"><i></i><span id="lgBt"></span></span>
+              <em id="cmpDelta"></em>
+            </div>
+          </div>
+          <div class="chart" id="cchart"><svg id="gc" viewBox="0 0 640 150"></svg><div class="tip" id="tipC"></div></div>
+        </div>
+      </div></section>
+      <section class="w" data-w="heat" aria-label="Heatmap"><div class="w-b">
+        <div class="hm-head">
+          <div class="yr"><button id="py" aria-label="Previous year">‹</button><span id="yv"></span><button id="ny" aria-label="Next year">›</button></div>
+          <div class="since" id="since" hidden>Tracking since <b id="sinceTxt"></b></div>
+          <div class="hint" id="hint"></div>
+        </div>
+        <div class="hmwrap" id="hmwrap"><svg id="hm" viewBox="0 0 742 114"></svg></div>
+      </div></section>
       </div>
-      <div class="hm-head">
-        <div class="yr"><button id="py" aria-label="Previous year">‹</button><span id="yv"></span><button id="ny" aria-label="Next year">›</button></div>
-        <div class="hint" id="hint"></div>
-      </div>
-      <div class="hmwrap" id="hmwrap"><svg id="hm" viewBox="0 0 742 114"></svg></div>
-      <div class="since" id="since" hidden>Tracking since <b id="sinceTxt"></b></div>
     </div>
-    <div class="foot" id="foot"><button id="ex">Export backup</button><button id="im">Import backup</button><button id="of">Open data folder</button></div>
+    <div class="foot" id="foot"><button id="ex">Export backup</button><button id="im">Import backup</button><button id="of">Open data folder</button><button id="rl" title="Put the panels back in their default order">Reset layout</button></div>
   </main>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden><span id="toastTxt"></span><button id="toastBtn">Undo</button></div>
 <script src="js/theme.js"></script>
 <script src="js/charts.js"></script>
+<script src="js/layout.js"></script>
 <script src="js/compare.js"></script>
 <script src="js/score.js"></script>
 <script src="js/state.js"></script>

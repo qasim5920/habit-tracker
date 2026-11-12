@@ -10,7 +10,7 @@ function renderSel() {
   s.value = which;
 }
 function renderGraph(list) {
-  const type = state.settings.chart, W = chartW($('chart')), H = 250, L = 34, R = 10, T = 10, B = 26, iw = W - L - R, ih = H - T - B, n = list.length;
+  const type = state.settings.chart, W = chartW($('chart')), H = chartH($('chart'), 250), L = 34, R = 10, T = 10, B = 26, iw = W - L - R, ih = H - T - B, n = list.length;
   gW = W; gH = H; $('g').setAttribute('viewBox', `0 0 ${W} ${H}`);
   const X = xScale(type, L, iw, n), Y = v => T + ih * (1 - v / 100);
   let h = '';
@@ -34,12 +34,15 @@ function renderStats(list) {
 function renderHeat() {
   const Y = year, sc = scope(), single = which !== 'all', tk = dk(today());
   const jan = new Date(Y, 0, 1, 12), off = (jan.getDay() + 6) % 7;
-  const cw = chartW($('hmwrap')), P = Math.max(9, cw / 54), C = P - 3;   // 54 week columns fill the available width
-  $('hm').setAttribute('viewBox', `0 0 ${(54 * P).toFixed(1)} ${(16 + 7 * P).toFixed(1)}`);
-  $('hm').style.width = 54 * P > cw + 1 ? (54 * P).toFixed(0) + 'px' : '';
+  // 54 week columns fill the width. When the panel is short, cells get less tall first and only get up to 45% wider than
+  // tall, so the grid stays close to square. Never below 9px (then the row scrolls sideways); leftover space is centred.
+  const cw = chartW($('hmwrap')), hh = $('hmwrap').clientHeight, byH = hh >= 70 ? (hh - 16) / 7 : Infinity;
+  const PY = Math.max(9, Math.min(cw / 54, byH)), PX = Math.max(9, Math.min(cw / 54, PY * 1.45)), CX = PX - 3, CY = PY - 3;
+  $('hm').setAttribute('viewBox', `0 0 ${(54 * PX).toFixed(1)} ${(16 + 7 * PY).toFixed(1)}`);
+  $('hm').style.width = (54 * PX).toFixed(0) + 'px';
   let h = '', i = 0;
   for (let d = new Date(jan); d.getFullYear() === Y; d = addD(d, 1), i++) {
-    const col = Math.floor((i + off) / 7), row = (i + off) % 7, k = dk(d), x = (col * P).toFixed(1), y = (16 + row * P).toFixed(1);
+    const col = Math.floor((i + off) / 7), row = (i + off) % 7, k = dk(d), x = (col * PX).toFixed(1), y = (16 + row * PY).toFixed(1);
     if (d.getDate() === 1) h += `<text x="${x}" y="9">${fmt(d, { month: 'short' })}</text>`;
     let fill, attr = '', cur = '';
     if (k > tk) fill = '#0e1013';
@@ -49,7 +52,7 @@ function renderHeat() {
       else if (!a) fill = '#101216';
       else fill = dn ? `rgba(var(--acc-rgb),${(0.2 + 0.8 * dn / a).toFixed(2)})` : '#1c1f26';
     }
-    h += `<rect x="${x}" y="${y}" width="${C.toFixed(1)}" height="${C.toFixed(1)}" rx="${(C * 0.23).toFixed(1)}" style="fill:${fill}${cur}"${attr}><title>${fmt(d, { weekday: 'short', ...F2 })}</title></rect>`;
+    h += `<rect x="${x}" y="${y}" width="${CX.toFixed(1)}" height="${CY.toFixed(1)}" rx="${(Math.min(CX, CY) * 0.23).toFixed(1)}" style="fill:${fill}${cur}"${attr}><title>${fmt(d, { weekday: 'short', ...F2 })}</title></rect>`;
   }
   $('hm').innerHTML = h;
   $('yv').textContent = Y;
